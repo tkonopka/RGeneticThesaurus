@@ -21,7 +21,7 @@ variants and mutations in a toy dataset.
 
 If you haven't already, install package RGeneticThesaurus from github. 
 
-```{r}
+```{r, echo=FALSE}
 library("devtools")
 install_github("tkonopka/RGeneticThesaurus")
 ```

@@ -1,6 +1,6 @@
 ## ------------------------------------------------------------------------
 library("devtools")
-## install_github("tkonopka/RGeneticThesaurus")
+install_github("tkonopka/RGeneticThesaurus")
 
 ## ------------------------------------------------------------------------
 library("RGeneticThesaurus")
