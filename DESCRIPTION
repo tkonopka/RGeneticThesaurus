@@ -1,0 +1,14 @@
+Package: RGeneticThesaurus
+Title: Analysis of thesaurus-annotated genomic variants
+Version: 0.1.0.0
+Authors@R: person("Tomasz", "Konopka", , "tomasz.konopka@ludwig.ox.ac.uk", role = c("aut", "cre"))
+Author: Tomasz Konopka <tomasz.konopka@ludwig.ox.ac.uk>
+Maintainer: Tomasz Konopka <tomasz.konopka@ludwig.ox.ac.uk>
+Description: Thesaurus annotation is a method for elucidating ambiguities in calling genomic variants in genomic regions of low mappability. This package provides a set of tools to manipulate thesaurus annotations.
+Depends: R (>= 3.1.2)
+Imports: 
+  data.table
+License: MIT License
+LazyData: true
+Suggests: knitr
+VignetteBuilder: knitr
