@@ -23,7 +23,7 @@ If you haven't already, install package RGeneticThesaurus from github.
 
 ```{r}
 library("devtools")
-## install_github("tkonopka/RGeneticThesaurus")
+install_github("tkonopka/RGeneticThesaurus")
 ```
 
 After the installation, load the package 
