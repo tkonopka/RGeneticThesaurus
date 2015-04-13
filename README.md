@@ -17,5 +17,5 @@ provides a set of tools to manipulate thesaurus annotations in the
 R environment. Notably, it provides tools to compare sets of variant 
 calls and to identify changes in allelic frequencies in matched samples.
 
-The package [vignette](https://github.com/tkonopka/RGeneticThesaurus/inst/doc/RGeneticThesaurus-vignette.html) 
+The package vignette (folder /inst/doc/RGeneticThesaurus-vignette.html) 
 contains usage information.
