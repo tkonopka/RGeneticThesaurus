@@ -222,7 +222,7 @@ readLinksFromFile = function(ff, n=65536) {
             stringsAsFactors=F)
         ans = ans[c(),]
     }
-    
+    rownames(ans) = NULL;
     return(ans)
 }
 
@@ -250,6 +250,7 @@ readBafFromFile = function(ff) {
         ans[!is.finite(ans[,nowcol]), nowcol] = 0;
     }
     ## that's all!
+    rownames(ans) = NULL;
     return(ans);
 }
 
@@ -301,10 +302,26 @@ readThesaurusSet = function(variantsfile, n=4096, ignorelines = c("thesaurushard
     ans = list();
     ans$files = reqfiles;
     names(ans$files) = c("variants", "links", "baf");
+    ## get variants from file on disk
     ans$variants = readVariantsFromFile(reqfiles[1], n=n, ignorelines=ignorelines,
         getcolumns=getcolumns, withindels=withindels);
+    ## get thesaurus links and baf from files on disk
     ans$links = readLinksFromFile(reqfiles[2], n=32*n);
     ans$baf = readBafFromFile(reqfiles[3]);
+    
+    ## if "ignorelines" is not empty, some lines in vcf are potentially deleted from ans$variants.
+    ## Here, subset the links and baf tables so that
+    ## they contain only those lines that are relevant to the current ans$variants table
+    if (length(ignorelines)>0 & nrow(ans$variants)>0) {
+        varlabels = PSZ(ans$variants[,"chr"], ":", ans$variants[,"position"]);
+        ## subset the links and baf tables
+        ans$baf = ans$baf[PSZ(ans$baf[,"chr"],":",ans$baf[,"position"]) %in% varlabels,];
+        ans$links = ans$links[PSZ(ans$links[,"chr.from"],":", ans$links[,"position.from"])
+            %in% varlabels, ];
+        rownames(ans$baf) = NULL;
+        rownames(ans$links) = NULL;
+    }
+    
     class(ans) = "RGeneticThesaurusSet";
     
     return(ans);    
