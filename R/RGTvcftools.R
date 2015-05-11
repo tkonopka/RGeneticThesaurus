@@ -3,6 +3,8 @@
 ##
 ## Contains helper functions for reading and manipulating vcf files and tables
 ##
+## Author: Tomasz Konpka
+##
 
 
 ## My favorite custom function - paste sep zero
