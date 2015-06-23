@@ -5,10 +5,10 @@
 \title{Call sites showing BAF changes}
 \usage{
 callBafChanges(baftable, cref, csample, foldchange = 1.2, maxref = 0.05,
-  minsample = 0.15)
+  minAF = 0.15)
 }
 \arguments{
-\item{baftable}{data.frame with variants}
+\item{baftable}{data.frame with variants and allelic frequencies}
 
 \item{cref}{identifier for column with reference BAF (e.g. normal tissue)}
 

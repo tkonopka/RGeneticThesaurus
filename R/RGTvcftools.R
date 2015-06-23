@@ -7,11 +7,6 @@
 ##
 
 
-## My favorite custom function - paste sep zero
-PSZ = function(...) {
-    paste(..., sep="")
-}
-
 
 ##' Determines whether a variant is a substitution or an indel
 ##'
@@ -277,13 +272,13 @@ readThesaurusSet = function(variantsfile, n=4096, ignorelines = c("thesaurushard
     ## from the variantsfile input, determine filenames for files making up this thesaurus set
     if (grepl(".vcf$", variantsfile)) {
         fileroot = substring(variantsfile, 1, nchar(variantsfile)-4)
-        reqfiles = PSZ(fileroot, c(".vcf", ".vtf", ".baf.tsv"));
+        reqfiles = paste0(fileroot, c(".vcf", ".vtf", ".baf.tsv"));
     } else if (grepl(".vcf.gz$", variantsfile)) {
         fileroot = substring(variantsfile, 1, nchar(variantsfile)-7)
-        reqfiles = PSZ(fileroot, c(".vcf.gz", ".vtf.gz", ".baf.tsv.gz"));
+        reqfiles = paste0(fileroot, c(".vcf.gz", ".vtf.gz", ".baf.tsv.gz"));
     } else {
-        msg = PSZ("Cannot understand format of variantsfile: ",variantsfile,"\n");
-        msg = PSZ(msg, "Please provide a name ending in vcf or vcf.gz\n");
+        msg = paste0("Cannot understand format of variantsfile: ",variantsfile,"\n");
+        msg = paste0(msg, "Please provide a name ending in vcf or vcf.gz\n");
         stop(msg, call.=FALSE);
     }
         
@@ -292,9 +287,9 @@ readThesaurusSet = function(variantsfile, n=4096, ignorelines = c("thesaurushard
     if (!allok) {
         for (i in 1:3) {
             if (!file.exists(reqfiles[i])) {
-                cat(PSZ("Cannot find file ",reqfiles[i],".\n",
-                        "Note: to load a part of a thesaurus annotation set, \n",
-                        "use readVariantsFromFile(), readLinksFromFile(), or readBafFromFile()\n"));
+                cat(paste0("Cannot find file ",reqfiles[i],".\n",
+                           "Note: to load a part of a thesaurus annotation set, \n",
+                           "use readVariantsFromFile(), readLinksFromFile(), or readBafFromFile()\n"));
             }
         }    
         stop("Missing files\n", call. = FALSE);
@@ -315,10 +310,10 @@ readThesaurusSet = function(variantsfile, n=4096, ignorelines = c("thesaurushard
     ## Here, subset the links and baf tables so that
     ## they contain only those lines that are relevant to the current ans$variants table
     if (length(ignorelines)>0 & nrow(ans$variants)>0) {
-        varlabels = PSZ(ans$variants[,"chr"], ":", ans$variants[,"position"]);
+        varlabels = paste0(ans$variants[,"chr"], ":", ans$variants[,"position"]);
         ## subset the links and baf tables
-        ans$baf = ans$baf[PSZ(ans$baf[,"chr"],":",ans$baf[,"position"]) %in% varlabels,];
-        ans$links = ans$links[PSZ(ans$links[,"chr.from"],":", ans$links[,"position.from"])
+        ans$baf = ans$baf[paste0(ans$baf[,"chr"],":",ans$baf[,"position"]) %in% varlabels,];
+        ans$links = ans$links[paste0(ans$links[,"chr.from"],":", ans$links[,"position.from"])
             %in% varlabels, ];
         rownames(ans$baf) = NULL;
         rownames(ans$links) = NULL;
@@ -400,8 +395,8 @@ compareVariants = function(known, hits, links = NULL) {
     colnames(emptyhits) = chrpos;
     
     ## get strings describing hits and expected mutations
-    hitcodes = PSZ(hits[,"chr"], ":", hits[,"position"])
-    knowncodes = PSZ(known[,"chr"], ":", known[,"position"])
+    hitcodes = paste0(hits[,"chr"], ":", hits[,"position"])
+    knowncodes = paste0(known[,"chr"], ":", known[,"position"])
     
     known.found = rep(FALSE, length(knowncodes))
     names(known.found) = knowncodes
@@ -413,8 +408,8 @@ compareVariants = function(known, hits, links = NULL) {
             site.known=FALSE, link.known=FALSE)
         links = links[c(), ]
     } else {
-        links[,"site.known"] = (PSZ(links[,"chr.from"],":",links[,"position.from"]) %in% knowncodes);
-        links[,"link.known"] = (PSZ(links[,"chr.to"],":",links[,"position.to"]) %in% knowncodes);
+        links[,"site.known"] = (paste0(links[,"chr.from"],":",links[,"position.from"]) %in% knowncodes);
+        links[,"link.known"] = (paste0(links[,"chr.to"],":",links[,"position.to"]) %in% knowncodes);
     }
 
     ## merge the smallhits witht vtf
@@ -424,15 +419,15 @@ compareVariants = function(known, hits, links = NULL) {
         hitsvtf[is.na(hitsvtf[,"site.known"]), "site.known"] = FALSE;
         hitsvtf[is.na(hitsvtf[,"link.known"]), "link.known"] = FALSE;    
         hitsvtf[,"site.known"] = hitsvtf[,"site.known"] |
-            (PSZ(hitsvtf[,"chr.from"], ":", hitsvtf[,"position.from"]) %in% knowncodes);
+            (paste0(hitsvtf[,"chr.from"], ":", hitsvtf[,"position.from"]) %in% knowncodes);
     }
     
     ## identify sites in the hits that match the known sites exactly
     sites.found = hitsvtf[,"site.known"]
-    sites.found.codes = PSZ(hitsvtf[,"chr.from"],":", hitsvtf[,"position.from"])[sites.found]
+    sites.found.codes = paste0(hitsvtf[,"chr.from"],":", hitsvtf[,"position.from"])[sites.found]
     if (length(sites.found.codes)>0) {
         known.found[sites.found.codes] = TRUE;
-        TPhits = unique(hitsvtf[sites.found, PSZ(chrpos,".from")]);
+        TPhits = unique(hitsvtf[sites.found, paste0(chrpos,".from")]);
         colnames(TPhits) = chrpos;
     } else {
         TPhits = emptyhits;
@@ -440,10 +435,10 @@ compareVariants = function(known, hits, links = NULL) {
     
     ## identify sites in the hits that are linked to known sites
     links.found = hitsvtf[,"link.known"] & !hitsvtf[,"site.known"];
-    links.found.codes  = PSZ(hitsvtf[,"chr.to"],":", hitsvtf[,"position.to"])[links.found];
+    links.found.codes  = paste0(hitsvtf[,"chr.to"],":", hitsvtf[,"position.to"])[links.found];
     if (length(links.found.codes)>0) {
         known.found[links.found.codes] = TRUE;
-        TTPhits = unique(hitsvtf[links.found, PSZ(chrpos, ".from")])
+        TTPhits = unique(hitsvtf[links.found, paste0(chrpos, ".from")])
         colnames(TTPhits) = chrpos;        
     } else {
         TTPhits = emptyhits;
@@ -451,9 +446,9 @@ compareVariants = function(known, hits, links = NULL) {
     
     ## find those rows that are not and do not link to known
     goodhits = hitsvtf[hitsvtf[,"site.known"] | hitsvtf[,"link.known"],]
-    goodhits = unique(PSZ(goodhits[,"chr.from"],":", goodhits[,"position.from"]))
+    goodhits = unique(paste0(goodhits[,"chr.from"],":", goodhits[,"position.from"]))
     badhits = hitsvtf[!hitsvtf[,"site.known"] & !hitsvtf[,"link.known"],]
-    badhits = unique(PSZ(badhits[,"chr.from"],":",badhits[,"position.from"]))    
+    badhits = unique(paste0(badhits[,"chr.from"],":",badhits[,"position.from"]))    
     badhits = unique(badhits[!(badhits %in% goodhits)])
     badhits = badhits[badhits!=":"]; ## badhits becomes ";" when the data.frame above is empty
     
@@ -494,7 +489,7 @@ compareVariants = function(known, hits, links = NULL) {
 ##' This function performs very crude mutation calling based on BAFs. The calling is
 ##' depends only on fold change and minimum AF thresholds.
 ##' 
-##' @param baftable data.frame with variants
+##' @param baftable data.frame with variants and allelic frequencies
 ##' @param cref identifier for column with reference BAF (e.g. normal tissue)
 ##' @param csample identifier for column with matched sample BAF (e.g. tumor tissue)
 ##' @param foldchange minimum fold.change threshold to call mutation
@@ -503,7 +498,7 @@ compareVariants = function(known, hits, links = NULL) {
 ##'
 ##' @export
 callBafChanges = function(baftable, cref, csample,
-    foldchange = 1.2, maxref = 0.05, minsample=0.15) {
+    foldchange = 1.2, maxref = 0.05, minAF=0.15) {
     
     ## sanity checks
     ## calculations assume for fold change is greater than 1
@@ -512,10 +507,10 @@ callBafChanges = function(baftable, cref, csample,
     }
     ## check that the columns are presented and formated as expected
     if (!(cref %in% colnames(baftable))) {
-        stop(PSZ("Column ",cref, " is not present in the input table\n"))
+        stop(paste0("Column ",cref, " is not present in the input table\n"))
     }
     if (!(csample %in% colnames(baftable))) {
-        stop(PSZ("Column ",csample, " is not present in the input table\n"))
+        stop(paste0("Column ",csample, " is not present in the input table\n"))
     }    
     if (class(baftable[,cref]) != "numeric" ) {
         stop("cref column is not numeric\n");
@@ -535,5 +530,105 @@ callBafChanges = function(baftable, cref, csample,
 }
 
 
+
+
+
+##' Call sites de novo mutations from family trio data
+##'
+##' This function performs crude mutation calling based on BAF. It searches for variants
+##' in a child sample that are not present in either parent. The calculation depends
+##' on changes in AF between child and parents.
+##'
+##' @param baftable data.frame with variants and allelic frequency
+##' @param cref1, string, code refererring to one of the matched controls, i.e. one of the parents.
+##'                      The function assumes the baftable contains columns such as
+##'                      cref1.thesaurus.BAF, etc as output by GeneticThesaurus software
+##' @param cref2 string, similar to cref1
+##' @param csample string, code referring to the child sample. The function assumes the baftable
+##'                  contains columns such as csample.thesaurus.BAF, etc. as output
+##'                  by GeneticThesaurus software.
+##' @param thesaurus boolean, set TRUE to use thesaurus adjusted BAF and coverage estimates
+##' @param foldchange numeric, required fold change in allelic frequency
+##' @param maxref numeric, maximal allelic frequency allowed in the reference samples
+##' @param minsample numeric, minimum allelic frequency required in the child sample
+##' @param mincov numeric, minimum coverage required in the reference samples
+##' @param exceptcovchr1 vector of chromosome names that should be excluded from the
+##'                       minimum coverage requirement (e.g. set chrY for a female sample)
+##' @param exceptcovchr2 vector, similar to exceptcovchr1
+##'
+##' @export
+callTrioDeNovo = function(baftable, cref1="mother", cref2="father", csample="child",
+    thesaurus=FALSE, foldchange=1.2, maxref=0.05, minsample=0.15, mincov=10,
+    exceptcovchr1=c(), exceptcovchr2=c()) {
+    
+    ## obtain a true/false vector selecting items from baftable as candidates
+       
+    ## use the input data to determine which columns of the baftable should be used in the analysis
+    if (thesaurus) {
+        ## Define columns with thesaurus-adjusted BAF estimates
+        cref1baf = PSZ(cref1,".thesaurus.BAF");
+        cref2baf = PSZ(cref2,".thesaurus.BAF");
+        csamplebaf = PSZ(csample, ".thesaurus.BAF");
+        
+        ## Define columns with thesaurus-adjusted coverage estimates
+        ## (this is complicated because of a bug in GeneticThesaurus (now fixed)
+        ## with spelling error in columns)
+        cref1cov = PSZ(cref1,".thesarus.cov");
+        cref2cov = PSZ(cref2,".thesarus.cov");
+        if (!(cref1cov %in% colnames(baftable))) {
+            cref1cov = PSZ(cref1,".thesaurus.cov");
+        }
+        if (!(cref2cov %in% colnames(baftable))) {
+            cref2cov = PSZ(cref2,".thesaurus.cov");
+        }
+        
+        ## for thesaurus analysis, require naive and adjusted estimates to be different
+        cthescov = PSZ(csample,".thesarus.cov");
+        if (!(cthescov %in% colnames(baftable))) {
+            cthescov = PSZ(csample,".thesaurus.cov");
+        }        
+        hitcovdiff =
+            (baftable[,PSZ(csample,".naive.cov")] != baftable[,cthescov]) |
+                (baftable[,"thesaurus.synonyms"]==0);
+        
+    } else {
+        ## Define columns for naive BAF estimates
+        cref1baf = PSZ(cref1,".naive.BAF");
+        cref2baf = PSZ(cref2,".naive.BAF");
+        csamplebaf = PSZ(csample, ".naive.BAF");
+
+        ## Define columns for coverage
+        cref1cov = PSZ(cref1,".naive.cov");
+        cref2cov = PSZ(cref2,".naive.cov");
+
+        ## thesaurus-adjusted calculation has an extra condition, here avoid
+        ## that condition by allowing all candidates to pass that requirement
+        hitcovdiff = rep(TRUE, nrow(baftable));
+    }
+
+    ## select hits based on AF changes (comared to reference 1)
+    hit1 = (baftable[,cref1baf] > foldchange*baftable[,csamplebaf]) &
+        (baftable[,csamplebaf]<maxref) & (baftable[,cref1baf]>minsample)
+    hit2 = (baftable[,csamplebaf] > foldchange*baftable[,cref1baf]) &
+        (baftable[,cref1baf]<maxref) & (baftable[,csamplebaf]>minsample)
+    ## select hits based on AF changes (comared to reference 2)
+    hit3 = (baftable[,cref2baf] > foldchange*baftable[,csamplebaf]) &
+        (baftable[,csamplebaf]<maxref) & (baftable[,cref2baf]>minsample)
+    hit4 = (baftable[,csamplebaf] > foldchange*baftable[,cref2baf]) &
+        (baftable[,cref2baf]<maxref) & (baftable[,csamplebaf]>minsample)
+    
+    ## when user asks to ignore some chromosomes in coverage thresholds,
+    ## implement this by temporarily adjusting coverage numbers
+    baftable[baftable[,1] %in% exceptcovchr1, cref1cov] = mincov+1;
+    baftable[baftable[,1] %in% exceptcovchr2, cref2cov] = mincov+1;
+    ## select hits based on minimum coverage in reference samples
+    hitcov = (baftable[,cref1cov]>mincov) & (baftable[,cref2cov]>mincov)
+
+    ## merge all the criteria together
+    selectvec = (hit1 | hit2) & (hit3 | hit4) & hitcov & hitcovdiff;
+    
+    ## report the entries in the input table that meet the criteria
+    return(baftable[selectvec, ,drop=FALSE])        
+}
 
 
