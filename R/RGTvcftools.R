@@ -174,7 +174,7 @@ readVariantsFromFile = function(ff, n=4096, ignorelines = c("thesaurushard","the
 ##' Read thesaurus links from a file
 ##'
 ##' This function reads a vtf file from disk and returns a data.frame. The data.frame is
-##' organized into four columns. Each row represents one thesaurus link and has an origin and
+##' organized into six columns. Each row represents one thesaurus link and has an origin and
 ##' destination.
 ##'
 ##' @param ff filename of vtf
@@ -197,9 +197,13 @@ readLinksFromFile = function(ff, n=65536) {
         temp = strsplit(fcontry, "\t")
         temp = lapply(temp, function(x) {
             x1 = unlist(strsplit(x[1],":") )
-            x2 = unlist(strsplit(x[2:length(x)], ":"))
-            x3 = data.frame(chr.from = x1[1], position.from = as.integer(x1[2]),
-                chr.to = x2[seq(1, length(x2),2)], position.to = as.integer(x2[seq(2, length(x2),2)]),
+            x2 = strsplit(x[2:length(x)], ":")
+            x2.chr = sapply(x2, function(x) {x[1]})
+            x2.pos = sapply(x2, function(x) {as.integer(x[2])})
+            x2.id = sapply(x2, function(x) {x[3]} )
+            x3 = data.frame(
+                chr.from = x1[1], position.from = as.integer(x1[2]), id.from = x1[3],
+                chr.to = x2.chr, position.to = x2.pos, id.to = x2.id, 
                 stringsAsFactors=F)
             return(x3)
         })
@@ -216,6 +220,7 @@ readLinksFromFile = function(ff, n=65536) {
     ## avoid returning bad format when there is no data.
     if (nrow(ans)==0) {
         ans = data.frame(chr.from="chr1", position.from=4, chr.to="chr1", position.to=5,
+            id.from=NA, id.to=NA,
             stringsAsFactors=F)
         ans = ans[c(),]
     }
