@@ -262,10 +262,19 @@ readBafFromFile = function(ff) {
 
 ##' Read a set of variants annotated using GeneticThesaurus
 ##'
+##' The GeneticThesaurus software for annotating variants with thesaurus links
+##' typically creates three output files - a .vcf file with called variants, a .vtf file
+##' with links, and a baf.tsv file with allelic frequencies. This function here
+##' reads these three file types together into a single R object (a list with the contents
+##' of the three files in data frames).
+##'
+##' Note: the individual files are often large, so this function may take up to a few minutes
+##' to complete.
+##' 
 ##' @param variantsfile filename for a vcf file annotated with the genetic thesaurus.
-##' This function assumes variantsfile ends with vcf (vcf.gz), and then looks for files
+##' This function assumes variantsfile ends with vcf (or vcf.gz), and then looks for files
 ##' with similar name with extensions vtf (or vtf.gz) and baf.tsv (or baf.tsv.gz)
-##' @param n number of lines to read (used by readVariantsFromFile and readLinksFromFile
+##' @param n number of lines to read at a time (used by readVariantsFromFile and readLinksFromFile
 ##' @param ignorelines filter codes to remove from variant list
 ##' @param getcolumns integer; this is passed on to function readVariantsFromFile
 ##' @param withindels logical; determines whether variant list should include insertions/deletions
