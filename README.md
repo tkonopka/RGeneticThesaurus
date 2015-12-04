@@ -2,6 +2,8 @@
 
 *Analysis of thesaurus-annotated genomic variants in R*
 
+[![Build Status](https://travis-ci.org/tkonopka/RGeneticThesaurus.svg?branch=master)]
+
 &nbsp;
 
 
