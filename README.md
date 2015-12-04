@@ -20,3 +20,5 @@ calls and to identify changes in allelic frequencies in matched samples.
 See the package [vignette](https://github.com/tkonopka/RGeneticThesaurus/blob/master/inst/doc/RGeneticThesaurus-vignette.md)
 for an example analysis.
 
+&nbsp;
+
