@@ -357,15 +357,11 @@ set.mmq16 = readThesaurusSet(file.mmq16)
 <p>A conservative approach is to use <code>mmq16</code> data and naive BAF estimates</p>
 
 <pre><code class="r">mut.mmq16.naive = callBafChanges(set.mmq16$baf, &quot;normal.naive.BAF&quot;, &quot;tumor.naive.BAF&quot;)
+mut.mmq16.naive[,1:4]
 </code></pre>
 
-<pre><code>## Error in callBafChanges(set.mmq16$baf, &quot;normal.naive.BAF&quot;, &quot;tumor.naive.BAF&quot;): object &#39;minsample&#39; not found
-</code></pre>
-
-<pre><code class="r">mut.mmq16.naive[,1:4]
-</code></pre>
-
-<pre><code>## Error in eval(expr, envir, enclos): object &#39;mut.mmq16.naive&#39; not found
+<pre><code>##    chr  position ref alt
+## 1 chrX 154552029   A   G
 </code></pre>
 
 <p>By manual inspection, we see that this approach identifies only one of the two somatic mutations in our dataset. That&#39;s alright, but let&#39;s see other ways to analyze the data.</p>
@@ -373,15 +369,13 @@ set.mmq16 = readThesaurusSet(file.mmq16)
 <p>The other extreme is to use <code>mmq1</code> settings and thesaurus BAF estimates</p>
 
 <pre><code class="r">mut.mmq1.thesaurus = callBafChanges(set.mmq1$baf, &quot;normal.thesaurus.BAF&quot;, &quot;tumor.thesaurus.BAF&quot;)
+mut.mmq1.thesaurus[,1:4]
 </code></pre>
 
-<pre><code>## Error in callBafChanges(set.mmq1$baf, &quot;normal.thesaurus.BAF&quot;, &quot;tumor.thesaurus.BAF&quot;): object &#39;minsample&#39; not found
-</code></pre>
-
-<pre><code class="r">mut.mmq1.thesaurus[,1:4]
-</code></pre>
-
-<pre><code>## Error in eval(expr, envir, enclos): object &#39;mut.mmq1.thesaurus&#39; not found
+<pre><code>##    chr  position ref alt
+## 1 chrX 154552029   A   G
+## 3 chrX 154556254   C   T
+## 4 chrX 154648184   G   A
 </code></pre>
 
 <p>This approach gives three somatic mutation calls, which is one more than we expected. </p>
@@ -397,7 +391,25 @@ set.mmq16 = readThesaurusSet(file.mmq16)
 <pre><code class="r">compareVariants(somatic, mut.mmq16.naive)
 </code></pre>
 
-<pre><code>## Error in compareVariants(somatic, mut.mmq16.naive): object &#39;mut.mmq16.naive&#39; not found
+<pre><code>## $TP
+##    chr  position
+## 1 chrX 154552029
+## 
+## $TTP
+## [1] chr      position
+## &lt;0 rows&gt; (or 0-length row.names)
+## 
+## $FP
+## [1] chr      position
+## &lt;0 rows&gt; (or 0-length row.names)
+## 
+## $FN
+##    chr  position
+## 1 chrX 154648184
+## 
+## $summary
+##   TP TTP FP FN
+## 1  1   0  0  1
 </code></pre>
 
 <p>This returns a list of several data frames, which split the genomic locations into true positives (TP), thesaurus true positives (TTP), false positive (FP), and false negatives (FN). The last data frame in the list contains a summary of these categories. For this analysis we see, consistent with what we observed above, that we have one true positive and one false negative. </p>
@@ -407,7 +419,26 @@ set.mmq16 = readThesaurusSet(file.mmq16)
 <pre><code class="r">compareVariants(somatic, mut.mmq1.thesaurus, links=set.mmq1$links)
 </code></pre>
 
-<pre><code>## Error in compareVariants(somatic, mut.mmq1.thesaurus, links = set.mmq1$links): object &#39;mut.mmq1.thesaurus&#39; not found
+<pre><code>## $TP
+##    chr  position
+## 1 chrX 154552029
+## 3 chrX 154648184
+## 
+## $TTP
+##    chr  position
+## 2 chrX 154556254
+## 
+## $FP
+## [1] chr      position
+## &lt;0 rows&gt; (or 0-length row.names)
+## 
+## $FN
+## [1] chr      position
+## &lt;0 rows&gt; (or 0-length row.names)
+## 
+## $summary
+##   TP TTP FP FN
+## 1  2   1  0  0
 </code></pre>
 
 <p>Here, we provide thesaurus links to the comparison procedure. In the final summary we see that there are no false positives and no false negatives, which is a great result. Note that one of the called variants is classified as a thesaurus true positive. This means that this site was technically called incorrectly. However, the thesaurus annotation (in the <code>links</code> table) contained a warning and linked this site to another position which had a true mutation.</p>
@@ -423,7 +454,7 @@ set.mmq16 = readThesaurusSet(file.mmq16)
 <pre><code class="r">nrow(callBafChanges(set.mmq1$baf, &quot;normal.naive.BAF&quot;, &quot;tumor.naive.BAF&quot;))
 </code></pre>
 
-<pre><code>## Error in callBafChanges(set.mmq1$baf, &quot;normal.naive.BAF&quot;, &quot;tumor.naive.BAF&quot;): object &#39;minsample&#39; not found
+<pre><code>## [1] 3
 </code></pre>
 
 <p>This means there are three candidate mutation sites. Using thesaurus assisted BAF estimates we have</p>
@@ -431,7 +462,7 @@ set.mmq16 = readThesaurusSet(file.mmq16)
 <pre><code class="r">nrow(callBafChanges(set.mmq1$baf, &quot;normal.thesaurus.BAF&quot;, &quot;tumor.thesaurus.BAF&quot;))
 </code></pre>
 
-<pre><code>## Error in callBafChanges(set.mmq1$baf, &quot;normal.thesaurus.BAF&quot;, &quot;tumor.thesaurus.BAF&quot;): object &#39;minsample&#39; not found
+<pre><code>## [1] 3
 </code></pre>
 
 <p>Again, three cadidate hits. </p>
@@ -441,13 +472,13 @@ set.mmq16 = readThesaurusSet(file.mmq16)
 <pre><code class="r">nrow(callBafChanges(set.mmq1$baf, &quot;normal.naive.BAF&quot;, &quot;tumor.naive.BAF&quot;, minAF=0.6))
 </code></pre>
 
-<pre><code>## Error in callBafChanges(set.mmq1$baf, &quot;normal.naive.BAF&quot;, &quot;tumor.naive.BAF&quot;, : object &#39;minsample&#39; not found
+<pre><code>## [1] 1
 </code></pre>
 
 <pre><code class="r">nrow(callBafChanges(set.mmq1$baf, &quot;normal.thesaurus.BAF&quot;, &quot;tumor.thesaurus.BAF&quot;, minAF=0.6))
 </code></pre>
 
-<pre><code>## Error in callBafChanges(set.mmq1$baf, &quot;normal.thesaurus.BAF&quot;, &quot;tumor.thesaurus.BAF&quot;, : object &#39;minsample&#39; not found
+<pre><code>## [1] 3
 </code></pre>
 
 <p>Thus, raising the threshold decreased the number of hits under the naive approach but not under the thesaurus approach (The expected allele frequencies of all mutations in the synthetic datasets were 1, i.e. well above the threshold of 0.6). </p>
@@ -478,8 +509,7 @@ set.mmq16 = readThesaurusSet(file.mmq16)
 ## 
 ## loaded via a namespace (and not attached):
 ## [1] chron_2.3-47     data.table_1.9.6 evaluate_0.7     formatR_1.2     
-## [5] magrittr_1.5     markdown_0.7.7   stringi_0.5-5    stringr_1.0.0   
-## [9] tools_3.1.2
+## [5] magrittr_1.5     stringi_0.5-5    stringr_1.0.0    tools_3.1.2
 </code></pre>
 
 </body>

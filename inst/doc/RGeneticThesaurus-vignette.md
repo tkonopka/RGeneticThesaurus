@@ -198,18 +198,12 @@ A conservative approach is to use `mmq16` data and naive BAF estimates
 
 ```r
 mut.mmq16.naive = callBafChanges(set.mmq16$baf, "normal.naive.BAF", "tumor.naive.BAF")
-```
-
-```
-## Error in callBafChanges(set.mmq16$baf, "normal.naive.BAF", "tumor.naive.BAF"): object 'minsample' not found
-```
-
-```r
 mut.mmq16.naive[,1:4]
 ```
 
 ```
-## Error in eval(expr, envir, enclos): object 'mut.mmq16.naive' not found
+##    chr  position ref alt
+## 1 chrX 154552029   A   G
 ```
 By manual inspection, we see that this approach identifies only one of the two somatic mutations in our dataset. That's alright, but let's see other ways to analyze the data.
 
@@ -218,18 +212,14 @@ The other extreme is to use `mmq1` settings and thesaurus BAF estimates
 
 ```r
 mut.mmq1.thesaurus = callBafChanges(set.mmq1$baf, "normal.thesaurus.BAF", "tumor.thesaurus.BAF")
-```
-
-```
-## Error in callBafChanges(set.mmq1$baf, "normal.thesaurus.BAF", "tumor.thesaurus.BAF"): object 'minsample' not found
-```
-
-```r
 mut.mmq1.thesaurus[,1:4]
 ```
 
 ```
-## Error in eval(expr, envir, enclos): object 'mut.mmq1.thesaurus' not found
+##    chr  position ref alt
+## 1 chrX 154552029   A   G
+## 3 chrX 154556254   C   T
+## 4 chrX 154648184   G   A
 ```
 This approach gives three somatic mutation calls, which is one more than we expected. 
 
@@ -247,7 +237,25 @@ compareVariants(somatic, mut.mmq16.naive)
 ```
 
 ```
-## Error in compareVariants(somatic, mut.mmq16.naive): object 'mut.mmq16.naive' not found
+## $TP
+##    chr  position
+## 1 chrX 154552029
+## 
+## $TTP
+## [1] chr      position
+## <0 rows> (or 0-length row.names)
+## 
+## $FP
+## [1] chr      position
+## <0 rows> (or 0-length row.names)
+## 
+## $FN
+##    chr  position
+## 1 chrX 154648184
+## 
+## $summary
+##   TP TTP FP FN
+## 1  1   0  0  1
 ```
 This returns a list of several data frames, which split the genomic locations into true positives (TP), thesaurus true positives (TTP), false positive (FP), and false negatives (FN). The last data frame in the list contains a summary of these categories. For this analysis we see, consistent with what we observed above, that we have one true positive and one false negative. 
 
@@ -258,7 +266,26 @@ compareVariants(somatic, mut.mmq1.thesaurus, links=set.mmq1$links)
 ```
 
 ```
-## Error in compareVariants(somatic, mut.mmq1.thesaurus, links = set.mmq1$links): object 'mut.mmq1.thesaurus' not found
+## $TP
+##    chr  position
+## 1 chrX 154552029
+## 3 chrX 154648184
+## 
+## $TTP
+##    chr  position
+## 2 chrX 154556254
+## 
+## $FP
+## [1] chr      position
+## <0 rows> (or 0-length row.names)
+## 
+## $FN
+## [1] chr      position
+## <0 rows> (or 0-length row.names)
+## 
+## $summary
+##   TP TTP FP FN
+## 1  2   1  0  0
 ```
 Here, we provide thesaurus links to the comparison procedure. In the final summary we see that there are no false positives and no false negatives, which is a great result. Note that one of the called variants is classified as a thesaurus true positive. This means that this site was technically called incorrectly. However, the thesaurus annotation (in the `links` table) contained a warning and linked this site to another position which had a true mutation.
 
@@ -280,7 +307,7 @@ nrow(callBafChanges(set.mmq1$baf, "normal.naive.BAF", "tumor.naive.BAF"))
 ```
 
 ```
-## Error in callBafChanges(set.mmq1$baf, "normal.naive.BAF", "tumor.naive.BAF"): object 'minsample' not found
+## [1] 3
 ```
 This means there are three candidate mutation sites. Using thesaurus assisted BAF estimates we have
 
@@ -289,7 +316,7 @@ nrow(callBafChanges(set.mmq1$baf, "normal.thesaurus.BAF", "tumor.thesaurus.BAF")
 ```
 
 ```
-## Error in callBafChanges(set.mmq1$baf, "normal.thesaurus.BAF", "tumor.thesaurus.BAF"): object 'minsample' not found
+## [1] 3
 ```
 Again, three cadidate hits. 
 
@@ -301,7 +328,7 @@ nrow(callBafChanges(set.mmq1$baf, "normal.naive.BAF", "tumor.naive.BAF", minAF=0
 ```
 
 ```
-## Error in callBafChanges(set.mmq1$baf, "normal.naive.BAF", "tumor.naive.BAF", : object 'minsample' not found
+## [1] 1
 ```
 
 ```r
@@ -309,7 +336,7 @@ nrow(callBafChanges(set.mmq1$baf, "normal.thesaurus.BAF", "tumor.thesaurus.BAF",
 ```
 
 ```
-## Error in callBafChanges(set.mmq1$baf, "normal.thesaurus.BAF", "tumor.thesaurus.BAF", : object 'minsample' not found
+## [1] 3
 ```
 Thus, raising the threshold decreased the number of hits under the naive approach but not under the thesaurus approach (The expected allele frequencies of all mutations in the synthetic datasets were 1, i.e. well above the threshold of 0.6). 
 
@@ -344,6 +371,5 @@ sessionInfo()
 ## 
 ## loaded via a namespace (and not attached):
 ## [1] chron_2.3-47     data.table_1.9.6 evaluate_0.7     formatR_1.2     
-## [5] magrittr_1.5     markdown_0.7.7   stringi_0.5-5    stringr_1.0.0   
-## [9] tools_3.1.2
+## [5] magrittr_1.5     stringi_0.5-5    stringr_1.0.0    tools_3.1.2
 ```
