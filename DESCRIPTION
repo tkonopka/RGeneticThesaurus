@@ -8,7 +8,7 @@ Description: Thesaurus annotation is a method for elucidating ambiguities in cal
 Depends: R (>= 3.1.2)
 Imports: 
   data.table
-License: MIT License
+License: MIT License + file LICENSE
 LazyData: true
 Suggests: knitr
 VignetteBuilder: knitr

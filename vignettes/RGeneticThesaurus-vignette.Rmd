@@ -19,11 +19,11 @@ variants and mutations in a toy dataset.
 
 ## Getting started
 
-If you haven't already, install package RGeneticThesaurus from github. 
+If you haven't already, install package RGeneticThesaurus from github. (If you need to, uncomment the following lines)
 
 ```{r, results="hide"}
-library("devtools")
-install_github("tkonopka/RGeneticThesaurus")
+## library("devtools")
+## install_github("tkonopka/RGeneticThesaurus")
 ```
 
 After the installation, load the package 
@@ -185,8 +185,8 @@ Again, three cadidate hits.
 
 However, if we use different thresholds in `callBafChanges`, the results may differ. Let's raise the minimum allele frequency in the tumor sample from 0.25 to 0.6. Then we have
 ```{r}
-nrow(callBafChanges(set.mmq1$baf, "normal.naive.BAF", "tumor.naive.BAF", minsample=0.6))
-nrow(callBafChanges(set.mmq1$baf, "normal.thesaurus.BAF", "tumor.thesaurus.BAF", minsample=0.6))
+nrow(callBafChanges(set.mmq1$baf, "normal.naive.BAF", "tumor.naive.BAF", minAF=0.6))
+nrow(callBafChanges(set.mmq1$baf, "normal.thesaurus.BAF", "tumor.thesaurus.BAF", minAF=0.6))
 ```
 Thus, raising the threshold decreased the number of hits under the naive approach but not under the thesaurus approach (The expected allele frequencies of all mutations in the synthetic datasets were 1, i.e. well above the threshold of 0.6). 
 

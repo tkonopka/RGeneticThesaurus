@@ -508,7 +508,7 @@ compareVariants = function(known, hits, links = NULL) {
 ##' @param csample identifier for column with matched sample BAF (e.g. tumor tissue)
 ##' @param foldchange minimum fold.change threshold to call mutation
 ##' @param maxref numeric, maximum allowed BAF in the reference sample
-##' @param minsample numeric, minimum BAF required in the sample
+##' @param minAF numeric, minimum BAF required in the sample
 ##'
 ##' @export
 callBafChanges = function(baftable, cref, csample,
@@ -535,9 +535,9 @@ callBafChanges = function(baftable, cref, csample,
     
     ## require a certain fold change in allelic frequency, also certain absolute thresholds
     hit1 = (baftable[,cref] > foldchange*baftable[,csample]) &
-        (baftable[,csample]<maxref) & (baftable[,cref]>minsample)
+        (baftable[,csample]<maxref) & (baftable[,cref]>minAF)
     hit2 = (baftable[,csample] > foldchange*baftable[,cref]) &
-        (baftable[,cref]<maxref) & (baftable[,csample]>minsample)
+        (baftable[,cref]<maxref) & (baftable[,csample]>minAF)
     
     ## report the entries in the input table that meet the criteria
     return(baftable[(hit1 | hit2), ,drop=FALSE])        
@@ -564,7 +564,7 @@ callBafChanges = function(baftable, cref, csample,
 ##' @param thesaurus boolean, set TRUE to use thesaurus adjusted BAF and coverage estimates
 ##' @param foldchange numeric, required fold change in allelic frequency
 ##' @param maxref numeric, maximal allelic frequency allowed in the reference samples
-##' @param minsample numeric, minimum allelic frequency required in the child sample
+##' @param minAF numeric, minimum allelic frequency required in the child sample
 ##' @param mincov numeric, minimum coverage required in the reference samples
 ##' @param exceptcovchr1 vector of chromosome names that should be excluded from the
 ##'                       minimum coverage requirement (e.g. set chrY for a female sample)
@@ -572,7 +572,7 @@ callBafChanges = function(baftable, cref, csample,
 ##'
 ##' @export
 callTrioDeNovo = function(baftable, cref1="mother", cref2="father", csample="child",
-    thesaurus=FALSE, foldchange=1.2, maxref=0.05, minsample=0.15, mincov=10,
+    thesaurus=FALSE, foldchange=1.2, maxref=0.05, minAF=0.15, mincov=10,
     exceptcovchr1=c(), exceptcovchr2=c()) {
     
     ## obtain a true/false vector selecting items from baftable as candidates
@@ -580,40 +580,40 @@ callTrioDeNovo = function(baftable, cref1="mother", cref2="father", csample="chi
     ## use the input data to determine which columns of the baftable should be used in the analysis
     if (thesaurus) {
         ## Define columns with thesaurus-adjusted BAF estimates
-        cref1baf = PSZ(cref1,".thesaurus.BAF");
-        cref2baf = PSZ(cref2,".thesaurus.BAF");
-        csamplebaf = PSZ(csample, ".thesaurus.BAF");
+        cref1baf = paste0(cref1,".thesaurus.BAF");
+        cref2baf = paste0(cref2,".thesaurus.BAF");
+        csamplebaf = paste0(csample, ".thesaurus.BAF");
         
         ## Define columns with thesaurus-adjusted coverage estimates
         ## (this is complicated because of a bug in GeneticThesaurus (now fixed)
         ## with spelling error in columns)
-        cref1cov = PSZ(cref1,".thesarus.cov");
-        cref2cov = PSZ(cref2,".thesarus.cov");
+        cref1cov = paste0(cref1,".thesarus.cov");
+        cref2cov = paste0(cref2,".thesarus.cov");
         if (!(cref1cov %in% colnames(baftable))) {
-            cref1cov = PSZ(cref1,".thesaurus.cov");
+            cref1cov = paste0(cref1,".thesaurus.cov");
         }
         if (!(cref2cov %in% colnames(baftable))) {
-            cref2cov = PSZ(cref2,".thesaurus.cov");
+            cref2cov = paste0(cref2,".thesaurus.cov");
         }
         
         ## for thesaurus analysis, require naive and adjusted estimates to be different
-        cthescov = PSZ(csample,".thesarus.cov");
+        cthescov = paste0(csample,".thesarus.cov");
         if (!(cthescov %in% colnames(baftable))) {
-            cthescov = PSZ(csample,".thesaurus.cov");
+            cthescov = paste0(csample,".thesaurus.cov");
         }        
         hitcovdiff =
-            (baftable[,PSZ(csample,".naive.cov")] != baftable[,cthescov]) |
+            (baftable[,paste0(csample,".naive.cov")] != baftable[,cthescov]) |
                 (baftable[,"thesaurus.synonyms"]==0);
         
     } else {
         ## Define columns for naive BAF estimates
-        cref1baf = PSZ(cref1,".naive.BAF");
-        cref2baf = PSZ(cref2,".naive.BAF");
-        csamplebaf = PSZ(csample, ".naive.BAF");
+        cref1baf = paste0(cref1,".naive.BAF");
+        cref2baf = paste0(cref2,".naive.BAF");
+        csamplebaf = paste0(csample, ".naive.BAF");
 
         ## Define columns for coverage
-        cref1cov = PSZ(cref1,".naive.cov");
-        cref2cov = PSZ(cref2,".naive.cov");
+        cref1cov = paste0(cref1,".naive.cov");
+        cref2cov = paste0(cref2,".naive.cov");
 
         ## thesaurus-adjusted calculation has an extra condition, here avoid
         ## that condition by allowing all candidates to pass that requirement
@@ -622,14 +622,14 @@ callTrioDeNovo = function(baftable, cref1="mother", cref2="father", csample="chi
 
     ## select hits based on AF changes (comared to reference 1)
     hit1 = (baftable[,cref1baf] > foldchange*baftable[,csamplebaf]) &
-        (baftable[,csamplebaf]<maxref) & (baftable[,cref1baf]>minsample)
+        (baftable[,csamplebaf]<maxref) & (baftable[,cref1baf]>minAF)
     hit2 = (baftable[,csamplebaf] > foldchange*baftable[,cref1baf]) &
-        (baftable[,cref1baf]<maxref) & (baftable[,csamplebaf]>minsample)
+        (baftable[,cref1baf]<maxref) & (baftable[,csamplebaf]>minAF)
     ## select hits based on AF changes (comared to reference 2)
     hit3 = (baftable[,cref2baf] > foldchange*baftable[,csamplebaf]) &
-        (baftable[,csamplebaf]<maxref) & (baftable[,cref2baf]>minsample)
+        (baftable[,csamplebaf]<maxref) & (baftable[,cref2baf]>minAF)
     hit4 = (baftable[,csamplebaf] > foldchange*baftable[,cref2baf]) &
-        (baftable[,cref2baf]<maxref) & (baftable[,csamplebaf]>minsample)
+        (baftable[,cref2baf]<maxref) & (baftable[,csamplebaf]>minAF)
     
     ## when user asks to ignore some chromosomes in coverage thresholds,
     ## implement this by temporarily adjusting coverage numbers
