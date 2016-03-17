@@ -162,7 +162,9 @@ readVariantsFromFile = function(ff, n=4096, ignorelines = c("thesaurushard","the
         ans = ans[,1:getcolumns];
     }
     colnames(ans)[1:getcolumns] = colnames(empty)[1:getcolumns];
-        
+    
+    
+    
     rownames(ans) = NULL;    
     return (ans);
 }
@@ -224,6 +226,7 @@ readLinksFromFile = function(ff, n=65536) {
             stringsAsFactors=F)
         ans = ans[c(),]
     }
+    ans = unique(ans)
     rownames(ans) = NULL;
     return(ans)
 }
@@ -252,6 +255,7 @@ readBafFromFile = function(ff) {
         ans[!is.finite(ans[,nowcol]), nowcol] = 0;
     }
     ## that's all!
+    ans = unique(ans)
     rownames(ans) = NULL;
     return(ans);
 }
@@ -399,8 +403,10 @@ readClustersFromFile = function(ff) {
 compareVariants = function(known, hits, links = NULL) {
 
     ## make a dataframe based on "hits", but with just the columns of interest
-    smallhits = hits[,c("chr", "position")]
+    smallhits = unique(hits[,c("chr", "position")])
     colnames(smallhits) = c("chr.from", "position.from")
+    ## make a small data frame based on known (note unique to remove double liners)
+    known = unique(known[,c("chr", "position")])
 
     ## useful vector for column labels 
     chrpos = c("chr", "position");
