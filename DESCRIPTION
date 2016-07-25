@@ -10,5 +10,5 @@ Imports:
   data.table
 License: MIT License + file LICENSE
 LazyData: true
-Suggests: knitr
+Suggests: rmarkdown, knitr
 VignetteBuilder: knitr

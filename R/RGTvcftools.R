@@ -431,7 +431,7 @@ compareVariants = function(known, hits, links = NULL) {
         links[,"site.known"] = (paste0(links[,"chr.from"],":",links[,"position.from"]) %in% knowncodes);
         links[,"link.known"] = (paste0(links[,"chr.to"],":",links[,"position.to"]) %in% knowncodes);
     }
-
+    
     ## merge the smallhits witht vtf
     hitsvtf = merge(smallhits, links, all.x = TRUE)
     
